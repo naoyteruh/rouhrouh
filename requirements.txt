@@ -33,7 +33,6 @@ oauth2==1.5.211
 oauthlib==0.6.0
 paramiko==1.12.1
 progressbar2==2.7.3
-#psycopg2==2.5.1
 pyasn1==0.1.7
 pycrypto==2.6
 python-dateutil==2.1

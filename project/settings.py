@@ -7,12 +7,8 @@ from django.template.loader import add_to_builtins
 import socket
 from logging_filters import skip_suspicious_operations
 
-# if socket.gethostname() == 'pc-ekilibr':
 DEBUG = True
 TEMPLATE_DEBUG = True
-# else:
-#     DEBUG = False
-#     TEMPLATE_DEBUG = False
 
 gettext = lambda s: s
 
@@ -28,7 +24,6 @@ ADMINS = (
  ('yo', 'naoy.teruh@gmail.com')
 )
 
-# if socket.gethostname() == 'pc-ekilibr':
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DATABASES = {
     'default': {
@@ -40,32 +35,6 @@ DATABASES = {
         'PORT': '',                      # Set to empty string for default.
     }
 }
-# else:
-#     #EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-#     EMAIL_BACKEND = 'django_smtp_ssl.SSLEmailBackend'
-#     EMAIL_HOST = 'mail.gandi.net'
-#     EMAIL_PORT = 465
-#     EMAIL_HOST_USER = 'yoan.huret@ekilibr-informatique.net'
-#     EMAIL_HOST_PASSWORD = 'coyote$59#'
-
-#     #EMAIL_HOST = 'smtp.gmail.com'
-#     #EMAIL_PORT = 587
-#     #EMAIL_HOST_USER = 'naoy.teruh@gmail.com'
-#     #EMAIL_HOST_PASSWORD = 'freeman59'
-
-#     EMAIL_TIMEOUT = 5
-#     EMAIL_USE_TLS = True
-#     SEND_BROKEN_LINK_EMAILS = False
-#     DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-#             'NAME': 'rouhrouh',                      # Or path to database file if using sqlite3.
-#             'USER': 'postgres',
-#             'PASSWORD': 'coyote$59',
-#             'HOST': 'localhost',                      # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-#             'PORT': '5432',                      # Set to empty string for default.
-#         }
-#     }
 
 MANAGERS = ADMINS
 
@@ -213,10 +182,8 @@ INSTALLED_APPS = (
     'sekizai',                            # for javascript and css management
     # Fin cms
     'compressor',
-    #'social.apps.django_app.default',
     'core',
     'home',
-    #'sorl.thumbnail',
     'easy_thumbnails',
     'stdimage'
 )
@@ -262,19 +229,6 @@ LOGGING = {
         },
     }
 }
-
-# Social Auth 
-#AUTHENTICATION_BACKENDS = (
-    #'social.backends.open_id.OpenIdAuth',
-    #'social.backends.google.GoogleOpenId',
-    #'social.backends.google.GoogleOAuth2',
-    #'social.backends.google.GoogleOAuth',
-    #'social.backends.twitter.TwitterOAuth',
-    #'social.backends.facebook.FacebookOAuth2',
-    #'django.contrib.auth.backends.ModelBackend',
-    # cms
-    #'auth.auth_backends.BlogUserModelBackend',
-#)
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '...'
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '8XSGCRu5wD5vCWnD3FDhcEod'
