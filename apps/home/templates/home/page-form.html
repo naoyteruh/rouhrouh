@@ -1,0 +1,442 @@
+{% load sekizai_tags %}
+{% load url from future %}
+{% load currency_tags %}
+
+<div id="page-form" class="page-block display-init" style="display: none" ng-controller="FormCtrl">
+    <div class="form-container">
+        <form id="prestationform" name="prestationform">
+             {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6">
+
+                    {% if state %}
+                    <input id="input-state" name="state" value="{{ state }}" style="display: none" />
+                    {% endif %}
+                    {% if prestation %}
+                    <input id="input-identifier" name="identifier" ng-model="prestation.identifier" style="display: none" />
+                    {% endif %}
+                    <div class="form-group">
+                        <label for="input-provider">opérateur</label>
+                        <select id="input-provider" class="form-control" name="provider" ng-model="prestation.provider" required>
+                            <option value="">
+                            choisissez parmi...
+                            </option>                       
+                            <option ng-repeat="provider in providers" value="{[{ provider.value }]}">
+                                {[{ provider.label }]}
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="input-offers">type d'offre</label>
+                        <select id="input-offers" class="form-control" name="offers" ng-model="prestation.offer" required>
+                            <option value="">
+                            choisissez parmi...
+                            </option>
+                            <option ng-repeat="offer in offers" value="{[{ offer.value }]}">
+                                {[{ offer.label }]}
+                            </option>
+                        </select>
+                    </div>                    
+                    <div class="form-group">
+                        <label for="lbl" class="checkbox-label">avantages fidélité</label>
+                        <div class="checkbox-control">
+                            <input type="checkbox" 
+                                    name="fidelity" 
+                                    id="fidelity" 
+                                    ng-model="prestation.fidelity" 
+                                    ng-value="True">
+                            <label for="fidelity">&nbsp;<span class="ui"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">  
+                    <div class="form-group">
+                        <label for="input-price">prix payé (sans option)</label>
+                        <div class="input-group">
+                            <input type="number" step="any" min="0" id="input-price" name="price" class="form-control" placeholder="prix (sans option)" ng-model="prestation.price" required />
+                            <span class="input-group-addon">€</span>
+                        </div>
+                    </div>                  
+                    {% if not prestation.is_guest or state == "CREATION"%}
+                    <div class="form-group">
+                        <label for="input-email">adresse e-mail</label>
+                        <input type="email"
+                               id="input-email"
+                               name="email"
+                               class="form-control"
+                               pattern="[A-Za-z0-9._%+-]{3,}@[a-zA-Z]{3,}([.]{1}[a-zA-Z]{2,}|[.]{1}[a-zA-Z]{2,}[.]{1}[a-zA-Z]{2,})"
+                               ng-model="prestation.email"
+                               placeholder="adresse mail" {% if state == "EDITION" %} disabled {% else %} required {% endif %}/>
+                    </div>
+                    {% endif %}
+                    <div class="form-group">
+                        <label for="lbl" class="checkbox-label">mode invité</label>
+                        <a href="javascript://"                           
+                           class="my-tooltip"
+                           data-toggle="tooltip"
+                           title="Le mode invité désactive l'enregistrement de votre adresse e-mail suite à la confirmation de la prestation.">
+                            <i class="glyphicon glyphicon-question-sign"></i>
+                        </a>
+                        <div class="checkbox-control">
+                            <input type="checkbox" 
+                                    name="guest" 
+                                    id="guest" 
+                                    ng-model="prestation.is_guest" 
+                                    ng-value="True"
+                                    {% if state == "EDITION" %} disabled {% endif %} >
+                            <label for="guest">&nbsp;<span class="ui"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+
+                {# <!-- BLOC FORFAIT FIXE --> #}
+                {# {[{ contientOffreFixe() }]} #}
+                <div id="elligibility-form-group" class="form-group form-panel container" ng-show="contientOffreFixe()">
+                    <div class="col-md-12">
+                        <label class="panel-title" for="lbl">eligibilité</label>
+                        <a href="javascript://"
+                           class="my-tooltip"
+                           data-toggle="tooltip"
+                           title="Liste des offres internet auxquelles vous pouvez avoir droit à votre lieu de domicile actuel. Tapez éligibilité sur Google pour plus d'informations.">
+                            <i class="glyphicon glyphicon-question-sign"></i>
+                        </a>
+                    </div>
+                    <div class="col-md-6" ng-repeat="providers in providers_columns">
+                        <div class="checkbox-panel">
+
+                            <div class="form-group" ng-repeat="provider in providers">
+                                <label for="lbl" class="checkbox-label">{[{ provider.label }]}</label>
+                                <div class="checkbox-control">
+                                    <input type="checkbox" 
+                                            name="elligibility[]"
+                                            id="chk-{[{ provider.value }]}"
+                                            value="{[{ provider.value }]}"
+                                            ng-checked="prestation.elligibility.indexOf(provider.value) > -1"
+                                            ng-click="toggleElligibility(provider.value)">
+                                    <label for="chk-{[{ provider.value }]}">&nbsp;<span class="ui"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {# <!--BLOC FORFAIT MOBILE--> #}
+                {# {[{ contientOffreMobile() }]} #}
+                <div id="mobile-settings-form-group" class="form-group form-panel container" ng-show="contientOffreMobile()">
+                    <div class="col-md-12">
+                        <label class="panel-title" for="lbl">caractéristiques forfait mobile</label>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="checkbox-panel">
+                            <div class="form-group">
+                                <label for="lbl" class="checkbox-label">sms illimites</label>
+                                <div class="checkbox-control">
+                                    <input type="checkbox" name="is-sms-unlimited" id="is-sms-unlimited"
+                                            ng-model="prestation.is_sms_unlimited" 
+                                            ng-value="True">
+                                    <label for="is-sms-unlimited">&nbsp;<span class="ui"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="lbl" class="checkbox-label">mms illimites</label>
+                                <div class="checkbox-control">
+                                    <input type="checkbox" name="is-mms-unlimited" id="is-mms-unlimited"
+                                            ng-model="prestation.is_mms_unlimited" 
+                                            ng-value="True">
+                                    <label for="is-mms-unlimited">&nbsp;<span class="ui"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="lbl" class="checkbox-label">accès 4G</label>
+                                <div class="checkbox-control">
+                                    <input type="checkbox" name="is-4g" id="is-4g"
+                                            ng-model="prestation.is_4g" 
+                                            ng-value="True">
+                                    <label for="is-4g">&nbsp;<span class="ui"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="lbl" class="checkbox-label">accès ordinateur</label>
+                                <a href="javascript://"
+                                   class="my-tooltip"
+                                   data-toggle="tooltip"
+                                   title="L'accès à votre réseau de données internet est-il inclut dans votre forfais via une clef SIM (3G / 4G) ou directement avec la fonction modem de votre téléphone.">
+                                    <i class="glyphicon glyphicon-question-sign"></i>
+                                </a>
+                                <div class="checkbox-control">
+                                    <input type="checkbox" name="is-key" id="is-key"
+                                            ng-model="prestation.is_key" 
+                                            ng-value="True">
+                                    <label for="is-key">&nbsp;<span class="ui"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="lbl" class="checkbox-label">forfait bloqué</label>
+                                <div class="checkbox-control">
+                                    <input type="checkbox" name="is-blocked" id="is-blocked"
+                                            ng-model="prestation.is_blocked" 
+                                            ng-value="True">
+                                    <label for="is-blocked">&nbsp;<span class="ui"></span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="lbl" class="checkbox-label">remboursement téléphone</label>
+                                    <div class="checkbox-control">
+                                    <input type="checkbox" name="is-phone-credit" id="is-phone-credit"
+                                            ng-model="prestation.is_phone_credit" 
+                                            ng-value="True">
+                                    <label for="is-phone-credit">&nbsp;<span class="ui"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>                        
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="input-price">plafond données internet</label>
+                            <select id="input-data-offers" class="form-control" name="data-offers" ng-model="prestation.data_offer" ng-required="contientOffreMobile()">
+                                <option value="">
+                                choisissez parmi...
+                                </option>                                 
+                                <option ng-repeat="data_offer in data_offers" value="{[{ data_offer.value }]}">
+                                    {[{ data_offer.label }]}
+                                </option>
+                            </select>
+                            <div class="input-group" ng-show="prestation.is_other_data_offer()">
+                                <input type="number" min="0" id="input-data" name="data" class="form-control" placeholder="plafond data"/>
+                                <span class="input-group-addon">Mo</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input-commitment">engagement</label>
+                            <select id="input-commitment" class="form-control" name="commitment" ng-model="prestation.commitment" ng-required="contientOffreMobile()" >
+                                <option value="">
+                                choisissez parmi...
+                                </option>                                
+                                <option ng-repeat="commitment in commitments" value="{[{ commitment.value }]}">
+                                    {[{ commitment.label }]}
+                                </option>
+                            </select>
+                        </div>
+                        <div class="form-group" ng-show="prestation.is_commited()">
+                            <label for="input-subscription">date de souscription</label>
+                            <input type="date" id="input-subscription"
+                                    name="subscription"
+                                    ng-model="prestation.subscriptionDate"
+                                    class="form-control" 
+                                    placeholder="date de souscription" 
+                                    ng-required="required" />
+                        </div>                        
+                    </div>
+                </div>
+            </div> 
+            {# <!--BLOC COMMENTAIRES--> #}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label for="input-comment">commentaires</label>
+                        <textarea name="comment" id="input-comment" class="form-control" rows="6" ng-model="prestation.comment"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group" style="height:30px">
+                        {% if state == "EDITION" %}
+                        <button id="delete-button" type="button" class="btn btn-secondary pull-left" ng-click="supprimerPrestation()">
+                            supprimer
+                        </button>
+                        {% endif %}
+                        {# <button class="btn btn-primary pull-right" ng-click="soumettrePrestation()" ng-disabled="prestationform.$invalid"> #}
+                        <button class="btn btn-primary pull-right" ng-click="soumettrePrestation()" >
+                            Soumettre
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% addtoblock "included_js" %}
+
+<script>
+
+    var prestation = function ()
+    {
+        this.identifier = "{{ prestation.identifier }}";
+        this.provider = "{{ prestation.provider }}";
+        this.offer = "{{ prestation.offers }}";
+        this.elligibility = [];
+        this.data_offer = "{{ prestation.data_offers }}";
+        this.data = "{{ prestation.data }}";
+        this.price = {% if prestation.price %}{% format_currency prestation.price 2 '.'%}{% else %}""{% endif %};
+        this.email = "{{ prestation.email }}";
+        this.commitment = "{{ prestation.commitment }}";
+        {% if prestation.subscription %}
+        this.subscriptionDate = new Date({{ prestation.subscription|date:"Y" }}, {{ prestation.subscription|date:"n" }} - 1, {{ prestation.subscription|date:"j" }});
+        this.subscription = "{{ prestation.subscription|date:"Y-m-d" }}";
+        {% else %}
+        this.subscriptionDate = "";
+        this.subscription = "";
+        {% endif %}
+        this.is_guest = "{{ prestation.is_guest }}" === "True";
+        this.is_sms_unlimited = "{{ prestation.is_sms_unlimited }}" === "True";
+        this.is_mms_unlimited = "{{ prestation.is_mms_unlimited }}" === "True";
+        this.is_blocked = "{{ prestation.is_blocked }}" === "True";
+        this.is_4g = "{{ prestation.is_4g }}" === "True";
+        this.is_key = "{{ prestation.is_key }}" === "True";
+        this.is_phone_credit = "{{ prestation.is_phone_credit }}" === "True";
+        this.fidelity = "{{ prestation.fidelity }}" === "True";  
+        this.comment = "{{ prestation.comment }}";  
+        this.is_other_data_offer = function() { 
+            return (this.data_offer && this.data_offer === "autre");
+        }; 
+        this.is_commited = function() { 
+            return (this.commitment && this.commitment !== "0");
+        };    
+    }
+    
+    app.controller("FormCtrl", ['$scope', function ($scope)
+        {
+            // Preparation des listes
+            var providers = new Array();
+            {% for value, label in providers %}
+            providers.push({"value": "{{value}}", "label": "{{label}}"});
+            {% endfor %}
+            var offers = new Array();
+            {% for value, label in offers %}
+            offers.push({"value": "{{value}}", "label": "{{label}}"});
+            {% endfor %}
+            var data_offers = new Array();
+            {% for value, label in data_offers %}
+            data_offers.push({"value": "{{value}}", "label": "{{label}}"});
+            {% endfor %}
+            var commitments = new Array();
+            commitments[undefined] = "Aucun";
+            {% for value, label in commitments %}
+            commitments.push({"value": "{{value}}", "label": "{{label}}"});
+            {% endfor %}
+
+            // VARIABLES SIMPLES
+            // Injection des listes dans le scope
+            $scope.providers = providers;
+            // Assignation par valeur 
+            // (sinon le scope est mis à jour par le push qui suit)
+            var providers_columns = providers.slice();
+            providers_columns.push({"value": "nsp", "label": "Ne sais pas"});
+            $scope.providers_columns = [];
+            $scope.providers_columns.push(providers_columns.slice(0, Math.ceil(providers_columns.length / 2)));
+            $scope.providers_columns.push(providers_columns.slice(Math.ceil(providers_columns.length / 2)));
+            //console.log($scope.providers_columns); 
+            $scope.offers = offers;
+            $scope.data_offers = data_offers;
+            $scope.commitments = commitments;
+            // Instanciation d une prestation
+            $scope.prestation = new prestation();
+
+            // LISTENERS
+            $scope.$watch("prestation.subscriptionDate", function (date)
+            {
+                $scope.prestation.subscription = date.toString('yyyy-MM-dd');
+            });
+
+            // VARIABLES CALCULEES
+            $scope.contientOffreFixe = function()
+            {
+                return ($scope.prestation.offer && ($scope.prestation.offer === 'fixe' ||  $scope.prestation.offer === 'triplay' ||  $scope.prestation.offer === 'quadriplay'));
+            }
+            $scope.contientOffreMobile = function()
+            {
+                return ($scope.prestation.offer && !($scope.prestation.offer === 'fixe' ||  $scope.prestation.offer === 'triplay'));
+            }
+
+            // METHODES
+            $scope.toggleElligibility = function(provider) {
+                var idx = $scope.prestation.elligibility.indexOf(provider);
+                // deja present
+                if (idx > -1) {
+                  $scope.prestation.elligibility.splice(idx, 1);
+                }
+                // non present
+                else {
+                  $scope.prestation.elligibility.push(provider);
+                }
+            };
+            // Initialisation de l elligibilite
+            {% if prestation.price %}
+            $.each("{{ prestation.elligibility }}".split("|"), function(index, value) {
+                $scope.toggleElligibility(value);
+            });
+            {% endif %}
+            $scope.soumettrePrestation = function() {
+                if($('#prestationform')[0].checkValidity())
+                {
+                    $.fn.showLoader();
+                    $.ajax({
+                        dataType:"json",
+                        contentType:'application/x-www-form-urlencoded;charset=utf-8',
+                        data: JSON.stringify($scope.prestation),
+                        type: "POST",
+                        url: "{% url "homepage" %}",
+                        success: function(response) {
+                            {% if state == "EDITION" %}
+                                try
+                                {
+                                    var json = $.fn.processAjaxReturn2(response);
+                                    $.fn.displayEditSuccess(fetchStats, json);
+                                }
+                                catch(e)
+                                {
+                                    ajaxReturnKo(response);
+                                }
+                            {% else %}
+                                $.fn.processAjaxReturn(response, $.fn.displaySuccess, ajaxReturnKo);
+                            {% endif %}
+                        }
+                    });
+                }
+            }
+            $scope.supprimerPrestation = function() {
+                $("#overlay").fadeIn(400);
+                $("#loader").show();
+                $.ajax({
+                    dataType:"json",
+                    contentType:'application/x-www-form-urlencoded;charset=utf-8',
+                    data: JSON.stringify($scope.prestation),
+                    type: "POST",
+                    url: "{% url "delete" %}",
+                    success: function(response) {
+                        $.fn.processAjaxReturn(response, 
+                            function() {
+                                $("#loader").fadeOut(400, function() {
+                                    $("#delete-success").fadeIn(400);
+                                })
+                            }, ajaxReturnKo);
+                    }
+                });
+            }
+
+        }
+    ]);
+
+    {% if state == "UNSUBSCRIPTION" %}
+        $("#overlay").show();
+        $("#delete-success").fadeIn(400);  
+    {% endif %}  
+
+</script>
+
+{% endaddtoblock %}

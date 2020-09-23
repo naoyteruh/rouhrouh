@@ -1,0 +1,384 @@
+{% load sekizai_tags %}
+{% load url from future %}
+
+<div id="stat-block" class="page-block{% if state == "CONSULTATION" or state == "CONFIRMATION" %} display-init{% endif %}" style="display: none">
+    <div class="wraper">
+    <div class="row">
+    
+        <div class="row-height">
+
+            <div id="summary-holder" class="col-md-6 holder">
+                <div class="container">
+                    <h1>Rapport comparatif</h1>
+                    <p id="summary">
+                    </p>
+                    <div class="col-md-12">
+                        <div class="form-group text-center">
+                            <div class="btn-group" role="group">
+                                <button id="onlyProvider" type="button" class="btn btn-primary">
+                                    Mon opérateur
+                                </button>
+                                <button id="allProvider" type="button" class="btn btn-primary">
+                                    Opérateurs elligibles
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="canvas-holder" class="col-md-6 holder">            
+                <div class="container">
+                    <canvas id="canvas"></canvas>
+                </div>
+            </div> 
+        </div>
+
+    </div>
+    <div class="row">
+        <div id="table-holder" class="col-md-12 holder">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>
+                            <a href="javascript://"
+                               class="my-tooltip"
+                               data-toggle="tooltip"
+                               title="Opérateur / Fournisseur d'accès">
+                                <span class="visible-lg">Opérateur</span><i class="fa fa-home"></i>
+                            </a>
+                        </th>
+                        <th>
+                            <a href="javascript://"
+                               class="my-tooltip"
+                               data-toggle="tooltip"
+                               title="Offre">
+                                <span class="visible-lg">Offre</span><i class="fa fa-gift"></i>
+                            </a>
+                        </th>
+                        <th class="large-display col-mobile" style="display:none">
+                            <a href="javascript://"
+                               class="my-tooltip"
+                               data-toggle="tooltip"
+                               title="SMS Illimités">
+                                <div class="visible-xs visible-sm visible-md">SMS <i class="fa fa-retweet"></i></div>
+                                <div class="visible-lg"><div>SMS</div> <i class="fa fa-retweet"></i></div>
+                            </a>
+                        </th>
+                        <th class="large-display col-mobile" style="display:none">
+                            <a href="javascript://"
+                               class="my-tooltip"
+                               data-toggle="tooltip"
+                               title="MMS Illimités">
+                                <div class="visible-xs visible-sm visible-md">MMS <i class="fa fa-retweet"></i></div>
+                                <div class="visible-lg"><div>MMS</div> <i class="fa fa-retweet"></i></div>
+                            </a>
+                        </th>
+                        <th class="large-display col-mobile" style="display:none">
+                            <a href="javascript://"
+                               class="my-tooltip"
+                               data-toggle="tooltip"
+                               title="Accès 4G">
+                                <div class="visible-xs visible-sm visible-md">Accès 4G</i></div>
+                                <div class="visible-lg"><div>Accès</div> 4G</i></div>
+                            </a>
+                        </th>
+                        <th class="large-display col-mobile" style="display:none">
+                            <a href="javascript://"
+                               class="my-tooltip"
+                               data-toggle="tooltip"
+                               title="Accès depuis ordinateur">
+                                <div class="visible-xs visible-sm visible-md"><i class="fa fa-keyboard-o"></i></div>
+                                <div class="visible-lg"><div>Accès</div> <i class="fa fa-keyboard-o"></i></div>
+                            </a>
+                        </th>
+                        <th class="large-display col-mobile" style="display:none">
+                            <a href="javascript://"
+                               class="my-tooltip"
+                               data-toggle="tooltip"
+                               title="Forfait bloqué">
+                                <span class="visible-lg">Bloqué?</span><i class="fa fa-stop-circle-o"></i>
+                            </a>
+                        </th>
+                        <th class="large-display col-mobile" style="display:none">
+                            <a href="javascript://"
+                               class="my-tooltip"
+                               data-toggle="tooltip"
+                               title="Remboursement de téléphone">
+                                <span class="visible-lg">Remboursement?</span><i class="fa fa-mobile-phone"></i>
+                            </a>
+                        </th>
+                        <th class="large-display col-subscription" style="display:none">
+                            <a href="javascript://"
+                               class="my-tooltip"
+                               data-toggle="tooltip"
+                               title="Durée engagement">
+                                <span class="visible-lg">Engagement</span><i class="fa fa-anchor"></i>
+                            </a>
+                        </th>
+                        <th class="large-display col-subscription" style="display:none">
+                            <a href="javascript://"
+                               class="my-tooltip"
+                               data-toggle="tooltip"
+                               title="Date de souscription">
+                                <span class="visible-lg">Souscription</span><i class="fa fa-calendar"></i>
+                            </a>
+                        </th>
+                        <th class="large-display col-mobile" style="display:none">
+                            <a href="javascript://"
+                               class="my-tooltip"
+                               data-toggle="tooltip"
+                               title="Données internet">
+                                <span class="visible-lg">Données Internet</span><i class="fa fa-download"></i>
+                            </a>
+                        </th>    
+                        <th class="large-display">
+                            <a href="javascript://"
+                               class="my-tooltip"
+                               data-toggle="tooltip"
+                               title="Avantages fidélité">
+                                <span class="visible-lg">Fidélité?</span><i class="fa fa-hourglass-end"></i>
+                            </a>
+                        </th>      
+                        <th>
+                            <a href="javascript://"
+                               class="my-tooltip"
+                               data-toggle="tooltip"
+                               title="Prix">
+                                <span class="visible-lg">Prix</span><i class="fa fa-eur"></i>
+                            </a>
+                        </th>               
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        </div>
+
+    </div>    
+    
+</div>
+
+{% addtoblock "included_js" %}
+
+
+<script src="{% static 'home/javascripts/table.setup.js' %}"></script>
+
+<script>
+
+    // Recuperation des statistiques
+    var prestation;
+    var prestations;
+
+    // Tableaux associatifs avec les ressources
+    var providers = new Array();
+    {% for value, label in providers %}
+    providers['{{ value }}'] = "{{ label }}";
+    {% endfor %}
+    var offers = new Array();
+    {% for value, label in offers %}
+    offers['{{ value }}'] = "{{ label }}";
+    {% endfor %}
+    var data_offers = new Array();
+    {% for value, label in data_offers %}
+    data_offers['{{ value }}'] = "{{ label }}";
+    {% endfor %}
+    var commitments = new Array();
+    commitments[undefined] = "Aucun";
+    {% for value, label in commitments %}
+    commitments['{{ value }}'] = "{{ label }}";
+    {% endfor %}
+
+
+
+    var parse = function(response)
+    {
+        if(typeof(response.data) !== 'undefined')
+        {
+            return response.data;
+        }
+        else
+        {
+            return response;
+        }
+    }
+
+    var fetchStats = function(json) {
+        prestation = json.data;
+        $.ajax({
+            contentType:'application/json;charset=utf-8',
+            data: JSON.stringify(prestation),
+            dataType: 'text',
+            processData: false,
+            type: "POST",
+            url: "{% url "get_stats" %}",
+            success: function(response) {
+                $.fn.processAjaxReturn(response, displayStats, ajaxReturnKo);
+            }
+        });
+    };
+
+    var filterPrestations = function(prestations, isSameProviderOnly) {
+        return prestations.filter(function(obj) {
+            return !(obj.provider != prestation.provider && isSameProviderOnly);
+        })
+    }
+
+    var displayChart = function(prestations, isSameProviderOnly) {
+
+        // Preparation des donnees
+        var labels = [""];
+        var datasets = [];
+        var values;
+        var chartTitle;
+
+        labels = [];
+        values = [];
+        var isPushed = false;
+        $.each(prestations, function(index, value) {            
+            if (typeof(value.identifier) !== 'undefined') {
+                labels.push("Vous");
+            } else {
+                labels.push("");
+            }
+            values.push($.fn.decimalize(value.price));
+        });
+        datasets.push($.fn.userDataset("(Vous)", values));
+
+        $("#allProvider").prop('disabled', !isSameProviderOnly);
+        $("#onlyProvider").prop('disabled', isSameProviderOnly);
+
+        chartTitle = isSameProviderOnly ? "Classement des offres " + prestation.provider : "Classement tous opérateurs";
+        $.fn.initChart(chartTitle, labels, datasets);
+    }
+
+    var displaySummary = function(prestations, isSameProviderOnly) {
+        var summary, delta;
+        var bestOffer = $.fn.decimalize(prestations[0].price);
+        var price = $.fn.decimalize(prestation.price);       
+
+        if(price === bestOffer)
+        {            
+            if (prestations.length == 1)
+            {
+                summary = "<p>Vous êtes seul en course dans votre catégorie pour le moment.</p>";
+                summary += "<p>Revenez dans quelques temps pour voir si c'est toujours le cas ! </p>";
+            }
+            else
+            {
+                summary = "<p>Bravo vous êtes un king de la négociation !</p>";
+                summary += "<p>Le graph vous donne le classement des {NUMBER} meilleures prestations.</p>";
+                summary = summary.replace('{NUMBER}', prestations.length);
+                summary += "<p>Le tableau en dessous détaille chacune d'entre elles.</p>";
+            }
+        }
+        else
+        {
+            delta = price - bestOffer;
+            summary = "<p>Vous vous faîtes plumer de {DELTA} euros {SCOPE}.</p>";
+            summary = summary.replace('{DELTA}', delta.toFixed(2));
+            scope = isSameProviderOnly ? "à opérateur équivalent" : "tous opérateurs confondus";
+            summary = summary.replace('{SCOPE}', scope);
+            if (prestations.length > 5)
+            {
+                summary += "<p>Le graph vous donne le classement des prestations plus interessantes que la votre.</p>";
+                summary += "<p>Le tableau en dessous détaille chacune d'entre elles.</p>";
+            }
+            else
+            {
+                summary += "<p>Le graph vous donne le classement des {NUMBER} meilleures prestations.</p>";
+                summary = summary.replace('{NUMBER}', prestations.length);
+                summary += "<p>Le tableau en dessous détaille chacune d'entre elles.</p>";
+            }
+        }        
+        $("#summary").html(summary);
+    }
+
+    var displayTable = function(prestations) {
+        var tableContent = "";
+        if(prestation.offers == 'mobile' || prestation.offers == 'quadriplay') 
+        {
+            $(".col-mobile").show();
+        }
+        if (prestation.commitment > 0)
+        {
+            $(".col-subscription").show();
+        }
+
+
+        // Suppresion des lignes de la table
+        $(".table-striped tr").not(':first').remove();
+        // Preparation des valeurs
+        $.each(prestations, function(index, value)
+        {
+            tableContent += $.fn.getPrestationSummaryTable(index, value, prestation.offers == 'mobile' || prestation.offers == 'quadriplay', prestation.commitment > 0);
+        });
+        // Ajout des valeurs au conteneur HTML
+        $("#table-holder table tbody").append(tableContent);
+    }
+
+    // Affichage des statistiques
+    var displayStats = function(datas) {
+
+        var chartTitle;
+        chartTitle = "Offres " + prestation.provider;
+
+        prestations = parse(datas);
+
+        {% if state == "EDITION" %}
+        $("#page-form").hide();
+        $("#stat-block").show();
+        {% endif %}
+        $("#overlay").hide();
+
+        prestations_filtered = filterPrestations(prestations, true);
+
+        displayChart(prestations_filtered, true);
+
+        displaySummary(prestations_filtered, true);
+        
+        displayTable(prestations_filtered);
+    };
+
+    $("#onlyProvider").on('click', function() {
+
+        prestations_filtered = filterPrestations(prestations, true);
+
+        displayChart(prestations_filtered, true);
+
+        displaySummary(prestations_filtered, true);
+        
+        displayTable(prestations_filtered);
+
+    });
+
+    $("#allProvider").on('click', function() {
+        
+        prestations_filtered = filterPrestations(prestations, false);
+
+        displayChart(prestations_filtered, false);
+
+        displaySummary(prestations_filtered, false);
+        
+        displayTable(prestations_filtered);    
+    });
+
+    {% if state == "CONSULTATION" %}
+        prestation = {{ prestation_json|safe }};
+        prestations = parse({{ prestations_json|safe }});
+        displayStats(prestations);
+    {% endif %}
+
+    {% if state == "CONFIRMATION" %}
+        $("#overlay").show();
+        $("#confirm-success").fadeIn(400).delay(2000).fadeOut(400, function(){
+            prestation = {{ prestation_json|safe }};
+            prestations = parse({{ prestations_json|safe }});
+            displayStats(prestations);
+        });
+    {% endif %}
+
+</script>
+
+{% endaddtoblock %}

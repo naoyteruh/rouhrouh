@@ -1,0 +1,56 @@
+{% load sekizai_tags %}
+{% load url from future %}
+
+<div id="page-head" class="page-block jumbotron display-init" style="display: none">
+
+    <div id="back-circle" class="circle" class="animated hinge zoomInRight"></div>
+    <div id="front-circle" class="circle" class="animated hinge zoomInLeft"></div>
+    <div id="pigeon-wrapper">
+        <img id="pigeon" src="{% static 'home/images/pigeon.png' %}" class="animated tada" />
+    </div>
+    <div id="subtext" style="display:none">
+        <h1 class="visible-xs">rouhRouh !</h1>
+        <h1 class="visible-sm visible-md visible-lg">Bienvenue sur rouhRouh !</h1>
+        <h2>Comparateur déclaratif de prestations télécoms</h2>
+        <p>Vous déclarez une prestation télécom (internet, téléphone).</p>
+        <p>Vous voyez où vous vous situez par rapport aux personnes qui bénéficient des mêmes services.</p>
+    </div>
+    <p id="scroll-btn-block" style="display: none">
+        <div class="scroll-btn">
+            <a onclick="javascript: $('html, body').animate({scrollTop: $('#page-form').offset().top }, 2000);"
+                class="animated infinite tada">
+                <i class="fa fa-arrow-down"></i>
+            </a>
+        </div>
+    </p>
+
+</div>
+
+
+{% addtoblock "included_js" %}
+
+<script>
+
+    // Init composants
+    var $ph = $("#page-head");
+    var $fc = $("#front-circle");
+    var $bc = $("#back-circle");
+    var $pg = $("#pigeon");
+    var $sb = $("#subtext");
+    var $sbb = $("#scroll-btn-block");
+    // Affichage des élements
+    $fc.show();
+    $bc.show();
+    $pg.show();
+    $sb.show();
+    $sbb.show();
+    // Ajout des classes d'animation
+    $fc.addClass('animated hinge zoomInLeft');
+    $bc.addClass('animated hinge zoomInRight');
+    $pg.addClass('animated tada');
+    // Masquage du loader
+    $.fn.hideLoader();
+
+</script>
+
+{% endaddtoblock %}

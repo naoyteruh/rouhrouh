@@ -1,0 +1,138 @@
+{% extends "core/index.html" %}
+
+{% load sekizai_tags %}
+{% load url from future %}
+
+{% block content %}
+
+<div style="min-height: 100%; text-align : center">
+    {% if state != "CONFIRMATION" and state != "CONSULTATION" %}
+        {% if state != "EDITION" %}
+            {% include "page-head.html" %}
+        {% endif %}
+        {% include "page-form.html" %}
+    {% endif %}
+    {% include "stat-block.html" %}
+</div>
+
+<div id="overlay" class="overlay">
+    <div id="success" style="display: none">
+        <p>En attente de confirmation !</p>
+        <p>
+            <small>Un email vous a été envoyé afin que vous confirmiez votre prestation.</small>
+        </p>
+        <i class="fa fa-thumbs-o-up" style="font-size: 2.5em; color: #73B8FF"></i>
+    </div>
+    <div id="edit-success" style="display: none">
+        <p>Envoi réussi !</p>
+        <i class="fa fa-thumbs-o-up" style="font-size: 2.5em; color: #73B8FF"></i>
+    </div>
+    <div id="confirm-success" style="display: none">
+        <p>Confirmation réussie !</p>
+        <p>
+            <small>Un nouvel email vous a été envoyé avec le lien d'administration de votre prestation.</small>
+        </p>
+         <p>
+            <small>Gardez le précieusement.</small>
+        </p>
+        <i class="fa fa-thumbs-o-up" style="font-size: 2.5em; color: #73B8FF"></i>
+    </div>
+    <div id="delete-success" style="display: none">
+        <p>Suppression réussie !</p>
+        <p>
+            <small>A bientôt sur Rouhrouh !</small>
+        </p>
+        <i class="fa fa-thumbs-o-up" style="font-size: 2.5em; color: #73B8FF"></i>
+    </div>
+    <div id="error" style="display: none">
+        <p>Une erreur s'est produite...</p>
+        <p class="error-detail"></p>
+        <i class="fa fa-thumbs-o-down" style="font-size: 2.5em; color: red"></i>
+    </div>
+    <div id="loader" style="display: none">
+        <p>Veuillez patienter</p>
+        <img src="{% static 'home/images/ajax-loader2.gif' %}" />
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script src="{% static 'home/libs/Chart.min.js' %}"></script>
+
+<script src="{% static 'home/javascripts/angular.setup.js' %}"></script>
+
+<script src="{% static 'home/javascripts/chart.setup.js' %}"></script>
+
+<script src="{% static 'home/javascripts/ajax.setup.js' %}"></script>
+
+<script src="{% static 'home/javascripts/parallax.setup.js' %}"></script>
+
+<script src="{% static 'home/javascripts/script.js' %}"></script>
+
+<script type="text/javascript">
+
+    $.fn.decimalize = function(value) {
+        var strValue = value.toString();
+        return parseFloat(strValue.slice(0, strValue.length - 2) + "." + strValue.slice(-2));
+    };
+
+    $.fn.humabool = function(value) {
+        return value ? "Oui" : "Non";
+    };
+
+    $.fn.showLoader = function(){
+        $("#overlay").fadeIn(400);
+        $("#loader").show();
+        return this;
+    };
+
+    $.fn.hideLoader = function(){
+        $("#overlay").fadeOut(400);
+        $("#loader").hide();
+        return this;
+    };
+
+    $.fn.displayEditSuccess = function(callback, params) {
+        var myCallback = callback;
+        var myParams = params;
+        $("#loader").fadeOut(400, function() {
+            $("#edit-success").fadeIn(400, function(){
+                myCallback(myParams);
+            });
+        });
+    };
+
+    $.fn.displaySuccess = function(callback) {
+        $("#loader").fadeOut(400, function(callback) {
+            $("#success").fadeIn(400);
+        });
+    };
+
+    // Methode appelee en cas d'echec d'une methode Ajax
+    var ajaxReturnKo = function(response) {
+        $("#loader").fadeOut(400, function() {
+            $("#error .error-detail").html(response.message);
+            $("#error").fadeIn(400).delay(2400).fadeOut(400, function() {
+                $("#overlay").hide();
+            });
+        });
+    };
+    // Methode appelee en cas d erreur serveur
+    {% if server_error %}
+        $("#overlay").show();
+        $("#error .error-detail").html("{{ server_error }}");
+        $("#error").fadeIn(400).delay(2400).fadeOut(400, function() {
+            $("#overlay").hide();
+        });
+    {% endif %}
+
+    $("#overlay").hide();
+    $(".display-init").show();
+
+    $('[data-toggle="tooltip"]').tooltip();
+
+</script>
+
+{% endblock %}
